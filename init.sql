@@ -1,0 +1,15 @@
+
+-- Create restriction rules table
+CREATE TABLE RESTRICTION_RULES
+(
+    ID VARCHAR(100) NOT NULL,
+    RULE_NAME VARCHAR(255) NOT NULL,
+    PREDICATE VARCHAR(500) NOT NULL
+);
+
+-- Create table that stores bank accounts information
+CREATE TABLE BANK_ACCOUNT
+(
+    ID VARCHAR(100) NOT NULL,
+    COUNTRY VARCHAR(10) NOT NULL
+);
