@@ -26,12 +26,12 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
 
   @override
   void initState() {
-    _makeRequest();
+    _makeInitialRequest();
     plutoColumns.addAll(_getPlutoColumns());
     super.initState();
   }
 
-  void _makeRequest() async {
+  void _makeInitialRequest() async {
     List<RestrictionRule> newRules = [];
     bool newIsError = false;
     try {
