@@ -1,0 +1,40 @@
+version: '3.7'
+services:
+
+# Postgres database
+  postgres:
+    image: postgres:9.4
+    ports:
+      - "5432:5432"
+    networks:
+      net:
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_DB: fraud_system
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+
+# Fraud detection service
+  fraud-detection-service:
+    build:
+      context: fraud-detection-service
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    restart: always
+    networks:
+      net:
+    ports:
+      - "8000:8000"
+      - "8006:8005"
+      - "9011:9010"
+    environment:
+      - "PORT=8000"
+      - "JDBC_URL=jdbc:postgresql://postgres:5432/fraud_system"
+      - "DB_USERNAME=user"
+      - "DB_PASSWORD=password"
+      - "RULES_CACHE_TTL_SECONDS=5"
+
+networks:
+  net:
