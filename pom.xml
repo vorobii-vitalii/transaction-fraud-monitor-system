@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>fraud-detection-service</module>
+        <module>acceptance-tests</module>
     </modules>
 
     <properties>
