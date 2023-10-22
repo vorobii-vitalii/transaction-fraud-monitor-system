@@ -85,7 +85,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
             builder: (context) => const AddRestrictionRuleDialog())
         .then((RestrictionRule? rule) {
       if (rule != null) {
-        setState(() => plutoRows.add(_ruleToRow(rule)));
+        stateManager.appendRows([_ruleToRow(rule)]);
       }
     });
   }
@@ -122,7 +122,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
           .restrictionRulesServiceClient
           .removeRestrictionRule(RemoveRestrictionRule(id: idToRemove));
       setState(() {
-        plutoRows.removeWhere((e) => e == row);
+        stateManager.removeRows([row]);
       });
     } catch (e) {
       if (context.mounted) {
