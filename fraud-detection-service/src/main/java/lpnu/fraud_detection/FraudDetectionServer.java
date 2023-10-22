@@ -8,6 +8,7 @@ import lpnu.fraud_detection.business.impl.DatabaseTransactionRulesProvider;
 import lpnu.fraud_detection.business.impl.EasyRulesTransactionRuleMatcher;
 import lpnu.fraud_detection.business.impl.TransactionContextEvaluatorImpl;
 import lpnu.fraud_detection.business.impl.TransactionValidatorImpl;
+import lpnu.fraud_detection.dao.BankAccountsDAO;
 import lpnu.fraud_detection.dao.RestrictionRulesDAO;
 import lpnu.fraud_detection.grpc.GrpcRestrictionRulesServiceImpl;
 import lpnu.fraud_detection.grpc.GrpcTransactionValidationServiceImpl;
@@ -23,12 +24,13 @@ public class FraudDetectionServer {
         var jdbi = Jdbi.create(dataSource);
         jdbi.installPlugin(new SqlObjectPlugin());
         var restrictionRulesDAO = jdbi.onDemand(RestrictionRulesDAO.class);
+        var bankAccountDAO = jdbi.onDemand(BankAccountsDAO.class);
         var transactionRulesProvider = new CachingTransactionRulesProvider(
                 new DatabaseTransactionRulesProvider(restrictionRulesDAO),
                 Integer.parseInt(System.getenv("RULES_CACHE_TTL_SECONDS")));
         var transactionRuleMatcher = new EasyRulesTransactionRuleMatcher(
                 transactionRulesProvider,
-                new TransactionContextEvaluatorImpl(),
+                new TransactionContextEvaluatorImpl(bankAccountDAO),
                 Integer.parseInt(System.getenv("RULES_CACHE_TTL_SECONDS")));
         var transactionValidator = new TransactionValidatorImpl(transactionRuleMatcher);
         var server = ServerBuilder.forPort(Integer.parseInt(System.getenv("PORT")))
@@ -42,7 +44,6 @@ public class FraudDetectionServer {
 
     private static HikariConfig getHikariConfig() {
         var config = new HikariConfig();
-        // jdbc:postgresql://localhost:3306/simpsons
         config.setJdbcUrl(System.getenv("JDBC_URL"));
         config.setUsername(System.getenv("DB_USERNAME"));
         config.setPassword(System.getenv("DB_PASSWORD"));
