@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+option java_package = "lpnu.fraud.detection.system";
+option java_multiple_files = true;
+option java_outer_classname = "FraudDetectionService";
+
+package fraudDetectionSystem;
+
+message CreateNewRestrictionRule {
+  string id = 1;
+  string name = 2;
+  string predicate = 3;
+}
+
+message RemoveRestrictionRule {
+  string id = 1;
+}
+
+enum ValidationStatus {
+  SUCCESS = 0;
+  BLOCK = 1;
+}
+
+message ValidationResult {
+  ValidationStatus status = 1;
+  string ruleName = 2;
+}
+
+message Amount {
+  int32 amount = 1;
+  string currency = 2;
+}
+
+message Transaction {
+  string fromAccount = 1;
+  string toAccount = 2;
+  Amount amount = 3;
+  string country = 4;
+}
+
+message RestrictionRule {
+  string id = 1;
+  string ruleName = 2;
+  string predicate = 3;
+}
+
+message RestrictionRules {
+  repeated RestrictionRule rule = 1;
+}
+
+message Empty {}
+
+service TransactionValidationService {
+  rpc validateTransaction(Transaction) returns (ValidationResult) {}
+}
+
+service RestrictionRulesService {
+  rpc getRestrictionRules(Empty) returns (RestrictionRules) {}
+  rpc createNewRestrictionRule(CreateNewRestrictionRule) returns (Empty) {}
+  rpc removeRestrictionRule(RemoveRestrictionRule) returns (Empty) {}
+}
