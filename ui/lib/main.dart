@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'Fraud detection system admin panel',
+        title: 'Fraud detection system',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green.shade400),
           useMaterial3: true,
         ),
         routerConfig: Routes.router);

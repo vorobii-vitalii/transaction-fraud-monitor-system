@@ -89,14 +89,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  fluent_ui:
-    dependency: "direct main"
-    description:
-      name: fluent_ui
-      sha256: "43e95034b12a8285a78703b5995bb4d2e02a28750a1a363044c150533bc7f027"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.7.6"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -110,11 +102,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  flutter_localizations:
-    dependency: transitive
-    description: flutter
-    source: sdk
-    version: "0.0.0"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -237,14 +224,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
-  math_expressions:
-    dependency: transitive
-    description:
-      name: math_expressions
-      sha256: "3576593617c3870d75728a751f6ec6e606706d44e363f088ac394b5a28a98064"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
   meta:
     dependency: transitive
     description:
@@ -261,6 +240,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
+  pluto_grid:
+    dependency: "direct main"
+    description:
+      name: pluto_grid
+      sha256: e77c34a33dd9d74abbe20ba1df96474dded150dd042c7f7495be1bc2c26bd37f
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.2"
   pointycastle:
     dependency: transitive
     description:
@@ -285,14 +272,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "21.1.2"
-  recase:
-    dependency: transitive
-    description:
-      name: recase
-      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.1.0"
   riverpod:
     dependency: transitive
     description:
@@ -301,14 +280,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.4"
-  scroll_pos:
+  rxdart:
     dependency: transitive
     description:
-      name: scroll_pos
-      sha256: "4246bff3afc779d87cdf650a67d42d67ae71b23ff020d14592e6b89e28a7f9cc"
+      name: rxdart
+      sha256: "0c7c0cedd93788d996e33041ffecda924cc54389199cde4e6a34b440f50044cb"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.27.7"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -388,4 +367,4 @@ packages:
     version: "2.1.4"
 sdks:
   dart: ">=3.0.6 <4.0.0"
-  flutter: ">=3.10.0"
+  flutter: ">=3.7.0"
