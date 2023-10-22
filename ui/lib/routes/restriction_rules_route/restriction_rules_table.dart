@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:ui/dialogs/add_restriction_rule_dialog.dart';
+import 'package:ui/dialogs/confirm_dialog.dart';
+import 'package:ui/dialogs/info_dialog.dart';
 import 'package:ui/locator.dart';
 import 'package:ui/services/fraud_detect_service.dart';
 import 'package:ui/services/proto/fraud-detection-service.pb.dart';
@@ -18,7 +20,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
   final List<PlutoColumn> plutoColumns = [];
   List<PlutoRow> plutoRows = [];
 
-  List<RestrictionRule>? rules;
+  List<RestrictionRule> rules = [];
   bool isLoading = true;
   bool isError = false;
 
@@ -30,7 +32,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
   }
 
   void _makeRequest() async {
-    List<RestrictionRule>? newRules;
+    List<RestrictionRule> newRules = [];
     bool newIsError = false;
     try {
       final response = await locator
@@ -49,7 +51,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
         rules = newRules;
         isLoading = false;
         isError = newIsError;
-        if (newRules != null) {
+        if (newRules.isNotEmpty) {
           plutoRows = _getPlutoRowsFromRules(newRules);
         }
       });
@@ -88,8 +90,50 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
     });
   }
 
+  void onDeleteRule(BuildContext context) async {
+    final PlutoRow? row = stateManager.currentRow;
+    if (row == null) {
+      showDialog(
+          context: context,
+          builder: (context) => const InfoDialog(text: 'No row selected'));
+      return;
+    }
+    if (row.cells['id'] == null) {
+      showDialog(
+          context: context,
+          builder: (context) => const InfoDialog(text: 'Something went wrong'));
+      return;
+    }
+
+    //ask for confirmation
+    final bool? answer = await showDialog<bool>(
+        context: context,
+        builder: (context) => const ConfirmDialog(
+            text: 'Are you sure you want to delete the selected row?'));
+    if (answer == null || answer == false) {
+      return;
+    }
+
+    //delete
+    final String idToRemove = (row.cells['id']!.value as int).toString();
+    try {
+      await locator
+          .get<FraudDetectService>()
+          .restrictionRulesServiceClient
+          .removeRestrictionRule(RemoveRestrictionRule(id: idToRemove));
+      setState(() {
+        plutoRows.removeWhere((e) => e == row);
+      });
+    } catch (e) {
+      if (context.mounted) {
+        showDialog(
+            context: context,
+            builder: (context) => InfoDialog(text: 'An error happened: $e'));
+      }
+    }
+  }
+
   void _onGridChanged(PlutoGridOnChangedEvent event) {
-    print(event);
     stateManager.notifyListeners();
   }
 
@@ -99,10 +143,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
       return const Text('Error');
     }
     if (isLoading) {
-      return const Text('Loading');
-    }
-    if (rules == null) {
-      return const Text('Damn rules are null');
+      return const CircularProgressIndicator();
     }
 
     return Container(
@@ -112,24 +153,43 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 3),
+            //TODO: lab3 separate upper row into its own widget
             child: Row(children: [
               const Text(
                 'List of restriction rules',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.add_box_rounded,
-                  color: Colors.green,
-                  size: 26,
+              Tooltip(
+                message: 'Add a new rule',
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.add_box_rounded,
+                    color: Colors.green,
+                    size: 26,
+                  ),
+                  onPressed: () => onAddRule(context),
                 ),
-                onPressed: () => onAddRule(context),
-              )
+              ),
+              Tooltip(
+                message: 'Delete selected row',
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.remove_circle_outline,
+                    color: Colors.red,
+                    size: 26,
+                  ),
+                  onPressed: () => onDeleteRule(context),
+                ),
+              ),
             ]),
           ),
           Expanded(
             child: PlutoGrid(
-              noRowsWidget: Container(), //TODO: Handle rules.isEmpty
+              noRowsWidget: const Text(
+                "No rules yet",
+                style: TextStyle(fontSize: 25),
+                textAlign: TextAlign.center,
+              ),
               mode: PlutoGridMode.readOnly,
               columns: plutoColumns,
               rows: plutoRows,
