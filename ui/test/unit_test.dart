@@ -10,19 +10,31 @@ void main() {
   late FraudDetectService fraudDetectService =
       FraudDetectService.create(address: address);
   final String ruleId1 = const Uuid().v4();
-  final String ruleId2 = const Uuid().v4();
   setUp(() async {});
 
   group('FraudDetectService Testing', () {
     test('Create RestrictionRule', () async {
       await fraudDetectService.restrictionRulesServiceClient
           .createNewRestrictionRule(CreateNewRestrictionRule(
-              id: ruleId1, name: 'TestRule', predicate: 'context'));
+              id: ruleId1,
+              name: 'TestRule',
+              predicate: 'context.transaction.getAmount().getAmount() >= 100'));
 
       var listResponse = await fraudDetectService.restrictionRulesServiceClient
           .getRestrictionRules(Empty());
 
       expect(listResponse.rule.map((e) => e.id).contains(ruleId1), true);
+    });
+
+    test('Test Transaction validation', () async {
+      final response = await fraudDetectService
+          .transactionValidationServiceClient
+          .validateTransaction(Transaction(
+              amount: Amount(amount: 200, currency: 'USD'),
+              fromAccount: '12-253',
+              toAccount: '24234-54',
+              country: 'UA'));
+      expect(response.status, ValidationStatus.BLOCK);
     });
 
     test('Delete RestrictionRule', () async {
