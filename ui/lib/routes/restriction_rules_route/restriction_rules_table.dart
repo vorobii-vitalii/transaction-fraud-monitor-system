@@ -31,7 +31,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
     super.initState();
   }
 
-  void _makeInitialRequest() async {
+  Future<void> _makeInitialRequest() async {
     List<RestrictionRule> newRules = [];
     bool newIsError = false;
     try {
@@ -65,14 +65,20 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
       });
 
   List<PlutoColumn> _getPlutoColumns() => [
-        PlutoColumn(title: 'Id', field: 'id', type: PlutoColumnType.number()),
+        PlutoColumn(
+            title: 'Id',
+            field: 'id',
+            width: 80,
+            type: PlutoColumnType.number()),
         PlutoColumn(
             title: 'Rule name',
             field: 'ruleName',
+            width: 320,
             type: PlutoColumnType.text()),
         PlutoColumn(
             title: 'Predicate',
             field: 'predicate',
+            width: 640,
             type: PlutoColumnType.text()),
       ];
 
@@ -90,7 +96,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
     });
   }
 
-  void onDeleteRule(BuildContext context) async {
+  Future<void> onDeleteRule(BuildContext context) async {
     final PlutoRow? row = stateManager.currentRow;
     if (row == null) {
       showDialog(

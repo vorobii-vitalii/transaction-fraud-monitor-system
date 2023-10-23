@@ -41,7 +41,7 @@ class _AddRestrictionRuleDialogState extends State<AddRestrictionRuleDialog> {
     Navigator.of(context).pop();
   }
 
-  void _onSubmit(BuildContext context) async {
+  Future<void> _onSubmit(BuildContext context) async {
     //TODO: 3lab content use form validation
     if (idController.text.isEmpty ||
         ruleNameController.text.isEmpty ||

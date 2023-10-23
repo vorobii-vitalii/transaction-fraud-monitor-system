@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ui/routes/restriction_rules_route/index.dart';
-import 'package:ui/routes/transaction_validation_route.dart';
+import 'package:ui/routes/transaction_validation_route/index.dart';
 
 enum LeftNavBarEnum { restrictionRulesRoute, transactionValidationRoute }
 

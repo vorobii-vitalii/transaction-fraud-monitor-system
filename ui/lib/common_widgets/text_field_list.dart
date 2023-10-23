@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ui/common_widgets/simple_text_field.dart';
 
 class TextFieldList extends StatelessWidget {
   final List<(TextEditingController, String)> data;
@@ -9,14 +10,8 @@ class TextFieldList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: data
-          .map((pair) => Padding(
-                padding: childPadding ?? EdgeInsets.zero,
-                child: TextField(
-                  controller: pair.$1,
-                  decoration: InputDecoration(
-                      border: const OutlineInputBorder(), hintText: pair.$2),
-                ),
-              ))
+          .map((pair) => SimpleTextField(
+              controller: pair.$1, hint: pair.$2, childPadding: childPadding))
           .toList(),
     );
   }
