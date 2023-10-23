@@ -19,16 +19,9 @@ class FraudDetectService {
 
   factory FraudDetectService.create({required ServerData serverData}) {
     ClientChannelBase channel;
-    /*if (kIsWeb) {
-      channel = GrpcWebClientChannel.xhr(
+    /*if (kIsWeb)
+     channel = GrpcWebClientChannel.xhr(
           Uri.parse('${serverData.baseUrl}:${serverData.port}'));
-    } else {
-      channel = ClientChannel(
-        serverData.baseUrl,
-        port: serverData.port,
-        options:
-            const ChannelOptions(credentials: ChannelCredentials.insecure()),
-      );
     }*/
     channel = ClientChannel(
       serverData.baseUrl,
