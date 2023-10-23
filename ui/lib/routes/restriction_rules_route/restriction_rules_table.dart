@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import 'package:ui/dialogs/add_restriction_rule_dialog.dart';
-import 'package:ui/dialogs/confirm_dialog.dart';
-import 'package:ui/dialogs/info_dialog.dart';
 import 'package:ui/locator.dart';
+import 'package:ui/services/dialog_service.dart';
 import 'package:ui/services/fraud_detect_service.dart';
 import 'package:ui/services/proto/fraud-detection-service.pb.dart';
 
@@ -85,38 +83,32 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
   List<PlutoRow> _getPlutoRowsFromRules(List<RestrictionRule> rules) =>
       rules.map((rule) => _ruleToRow(rule)).toList();
 
-  void onAddRule(BuildContext context) {
-    showDialog<RestrictionRule?>(
-            context: context,
-            builder: (context) => const AddRestrictionRuleDialog())
-        .then((RestrictionRule? rule) {
-      if (rule != null) {
-        stateManager.appendRows([_ruleToRow(rule)]);
-      }
-    });
+  Future<void> onAddRule(BuildContext context) async {
+    final rule = await locator
+        .get<DialogService>()
+        .showAddRestrictionRuleDialog(context);
+    if (rule != null) {
+      stateManager.appendRows([_ruleToRow(rule)]);
+    }
   }
 
   Future<void> onDeleteRule(BuildContext context) async {
     final PlutoRow? row = stateManager.currentRow;
     if (row == null) {
-      showDialog(
-          context: context,
-          builder: (context) => const InfoDialog(text: 'No row selected'));
+      locator.get<DialogService>().showInfoDialog(context, 'No row selected');
       return;
     }
     if (row.cells['id'] == null) {
-      showDialog(
-          context: context,
-          builder: (context) => const InfoDialog(text: 'Something went wrong'));
+      locator
+          .get<DialogService>()
+          .showInfoDialog(context, 'Something went wrong');
       return;
     }
 
     //ask for confirmation
-    final bool? answer = await showDialog<bool>(
-        context: context,
-        builder: (context) => const ConfirmDialog(
-            text: 'Are you sure you want to delete the selected row?'));
-    if (answer == null || answer == false) {
+    final bool answer = await locator.get<DialogService>().showConfirmDialog(
+        context, 'Are you sure you want to delete the selected row?');
+    if (!answer) {
       return;
     }
 
@@ -132,9 +124,9 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
       });
     } catch (e) {
       if (context.mounted) {
-        showDialog(
-            context: context,
-            builder: (context) => InfoDialog(text: 'An error happened: $e'));
+        locator
+            .get<DialogService>()
+            .showInfoDialog(context, 'An error happened: $e');
       }
     }
   }

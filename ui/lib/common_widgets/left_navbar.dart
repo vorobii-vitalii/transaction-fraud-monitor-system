@@ -13,6 +13,20 @@ class LeftNavbar extends ConsumerWidget {
     context.go(Routes.getRouteString(newPage));
   }
 
+  static const List<(IconData, String)> data = [
+    (Icons.gavel, 'Restriction\nRules'),
+    (Icons.receipt_long_outlined, 'Transaction\nvalidation')
+  ];
+
+  NavigationRailDestination getNavDestination(
+          {required IconData icon, required String text}) =>
+      NavigationRailDestination(
+          icon: Icon(icon),
+          label: Text(
+            text,
+            textAlign: TextAlign.center,
+          ));
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return NavigationRail(
@@ -20,19 +34,8 @@ class LeftNavbar extends ConsumerWidget {
         onDestinationSelected: (int newValue) =>
             onDestinationSelected(context, ref, newValue),
         labelType: NavigationRailLabelType.all,
-        destinations: const [
-          NavigationRailDestination(
-              icon: Icon(Icons.gavel),
-              label: Text(
-                'Restriction\nRules',
-                textAlign: TextAlign.center,
-              )),
-          NavigationRailDestination(
-              icon: Icon(Icons.receipt_long_outlined),
-              label: Text(
-                'Transaction\nvalidation',
-                textAlign: TextAlign.center,
-              ))
-        ]);
+        destinations: data
+            .map((pair) => getNavDestination(icon: pair.$1, text: pair.$2))
+            .toList());
   }
 }

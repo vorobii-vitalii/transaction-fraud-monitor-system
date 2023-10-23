@@ -3,8 +3,8 @@ import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:ui/common_widgets/simple_text_field.dart';
 import 'package:ui/common_widgets/text_field_list.dart';
-import 'package:ui/dialogs/info_dialog.dart';
 import 'package:ui/locator.dart';
+import 'package:ui/services/dialog_service.dart';
 import 'package:ui/services/fraud_detect_service.dart';
 import 'package:ui/services/proto/fraud-detection-service.pb.dart';
 
@@ -70,27 +70,25 @@ class _TransactionValidationFormState extends State<TransactionValidationForm> {
     );
   }
 
+  void onShowInfoDialog(BuildContext context, String text) {
+    locator.get<DialogService>().showInfoDialog(context, text);
+  }
+
   Future<void> onValidateTransaction(BuildContext context) async {
     if (amountController.text == '' ||
         currencyController.text == '' ||
         countryController.text == '' ||
         fromController.text == '' ||
         toController.text == '') {
-      showDialog(
-          context: context,
-          builder: (context) =>
-              const InfoDialog(text: 'No empty fields are allowed'));
+      onShowInfoDialog(context, 'No empty fields are allowed');
       return;
     }
 
     if (int.tryParse(amountController.text) == null ||
         int.tryParse(toController.text) == null ||
         int.tryParse(fromController.text) == null) {
-      showDialog(
-          context: context,
-          builder: (context) => const InfoDialog(
-              text:
-                  'Amount, to Id and from Id fields should have numerical values'));
+      onShowInfoDialog(context,
+          'Amount, to Id and from Id fields should have numerical values');
       return;
     }
 
@@ -110,22 +108,14 @@ class _TransactionValidationFormState extends State<TransactionValidationForm> {
           );
       if (context.mounted) {
         if (response.status == ValidationStatus.SUCCESS) {
-          showDialog(
-              context: context,
-              builder: (context) =>
-                  const InfoDialog(text: 'Successful validation'));
+          onShowInfoDialog(context, 'Successful validation');
         } else {
-          showDialog(
-              context: context,
-              builder: (context) =>
-                  const InfoDialog(text: 'Validation failed'));
+          onShowInfoDialog(context, 'Validation failed');
         }
       }
     } catch (e) {
-      showDialog(
-          context: context,
-          builder: (context) => const InfoDialog(
-              text: 'An error happened during transaction validation'));
+      onShowInfoDialog(
+          context, 'An error happened during transaction validation');
     }
     setState(() => isLoading = false);
   }
