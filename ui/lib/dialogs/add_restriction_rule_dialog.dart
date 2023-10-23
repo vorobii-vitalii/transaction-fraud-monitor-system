@@ -4,6 +4,7 @@ import 'package:ui/common_widgets/text_field_list.dart';
 import 'package:ui/locator.dart';
 import 'package:ui/services/fraud_detect_service.dart';
 import 'package:ui/services/proto/fraud-detection-service.pb.dart';
+import 'package:uuid/uuid.dart';
 
 class AddRestrictionRuleDialog extends StatefulWidget {
   const AddRestrictionRuleDialog({super.key});
@@ -14,7 +15,6 @@ class AddRestrictionRuleDialog extends StatefulWidget {
 }
 
 class _AddRestrictionRuleDialogState extends State<AddRestrictionRuleDialog> {
-  late final TextEditingController idController;
   late final TextEditingController ruleNameController;
   late final TextEditingController predicateController;
 
@@ -23,7 +23,6 @@ class _AddRestrictionRuleDialogState extends State<AddRestrictionRuleDialog> {
 
   @override
   void initState() {
-    idController = TextEditingController();
     ruleNameController = TextEditingController();
     predicateController = TextEditingController();
     super.initState();
@@ -31,7 +30,6 @@ class _AddRestrictionRuleDialogState extends State<AddRestrictionRuleDialog> {
 
   @override
   void dispose() {
-    idController.dispose();
     ruleNameController.dispose();
     predicateController.dispose();
     super.dispose();
@@ -43,9 +41,7 @@ class _AddRestrictionRuleDialogState extends State<AddRestrictionRuleDialog> {
 
   Future<void> _onSubmit(BuildContext context) async {
     //TODO: 3lab content use form validation
-    if (idController.text.isEmpty ||
-        ruleNameController.text.isEmpty ||
-        predicateController.text.isEmpty) {
+    if (ruleNameController.text.isEmpty || predicateController.text.isEmpty) {
       setState(() => errorMessage = "No field can be empty");
       return;
     }
@@ -57,40 +53,8 @@ class _AddRestrictionRuleDialogState extends State<AddRestrictionRuleDialog> {
 
     final service = locator.get<FraudDetectService>();
 
-    //check if id is a number
-    if (int.tryParse(idController.text.trim()) == null) {
-      setState(() {
-        isLoading = false;
-        errorMessage = "Id should be a number";
-      });
-      return;
-    }
-
-    //TODO: move rules State to local page Provider so i don't have to send an extra request
-    //send request for a list of rules
-    late final RestrictionRules rules;
-    try {
-      rules = await service.restrictionRulesServiceClient
-          .getRestrictionRules(Empty());
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = "Failed to receive data";
-      });
-      return;
-    }
-
-    //Check if a row with this id already exists
-    if (rules.rule.map((x) => x.id).contains(idController.text.trim())) {
-      setState(() {
-        isLoading = false;
-        errorMessage = "A row with this id already exists";
-      });
-      return;
-    }
-
     //add new rule
-    final idString = idController.text.trim();
+    final idString = const Uuid().v4();
     final nameString = ruleNameController.text.trim();
     final predicateString = predicateController.text.trim();
     try {
@@ -133,11 +97,10 @@ class _AddRestrictionRuleDialogState extends State<AddRestrictionRuleDialog> {
                   childPadding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   data: [
-                    (idController, 'Id'),
                     (ruleNameController, 'Rule name'),
                     (predicateController, 'Predicate')
                   ]),
-              const Spacer(flex: 1),
+              const Spacer(flex: 2),
               isLoading ? const LinearProgressIndicator() : Container(),
               ErrorMessageWidget(
                   text: errorMessage,

@@ -64,10 +64,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
 
   List<PlutoColumn> _getPlutoColumns() => [
         PlutoColumn(
-            title: 'Id',
-            field: 'id',
-            width: 80,
-            type: PlutoColumnType.number()),
+            title: 'Id', field: 'id', width: 80, type: PlutoColumnType.text()),
         PlutoColumn(
             title: 'Rule name',
             field: 'ruleName',
