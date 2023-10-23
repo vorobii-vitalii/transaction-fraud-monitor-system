@@ -110,7 +110,7 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
     }
 
     //delete
-    final String idToRemove = (row.cells['id']!.value as int).toString();
+    final String idToRemove = row.cells['id']!.value as String;
     try {
       await locator
           .get<FraudDetectService>()
