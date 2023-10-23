@@ -1,6 +1,9 @@
 import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_connection_interface.dart';
 import 'package:ui/data/server_data.dart';
 import 'package:ui/services/proto/fraud-detection-service.pbgrpc.dart';
+//import 'package:grpc/grpc_web.dart';
+//import 'package:flutter/foundation.dart' show kIsWeb;
 
 class FraudDetectService {
   final ServerData serverData;
@@ -15,7 +18,19 @@ class FraudDetectService {
   });
 
   factory FraudDetectService.create({required ServerData serverData}) {
-    final channel = ClientChannel(
+    ClientChannelBase channel;
+    /*if (kIsWeb) {
+      channel = GrpcWebClientChannel.xhr(
+          Uri.parse('${serverData.baseUrl}:${serverData.port}'));
+    } else {
+      channel = ClientChannel(
+        serverData.baseUrl,
+        port: serverData.port,
+        options:
+            const ChannelOptions(credentials: ChannelCredentials.insecure()),
+      );
+    }*/
+    channel = ClientChannel(
       serverData.baseUrl,
       port: serverData.port,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
