@@ -7,7 +7,8 @@ import 'package:ui/services/fraud_detect_service.dart';
 import 'package:ui/services/proto/fraud-detection-service.pb.dart';
 
 class RestrictionRulesTable extends StatefulWidget {
-  const RestrictionRulesTable({super.key});
+  final List<RestrictionRule>? initialRules;
+  const RestrictionRulesTable({super.key, this.initialRules});
 
   @override
   State<RestrictionRulesTable> createState() => _RestrictionRulesTableState();
@@ -24,7 +25,13 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
 
   @override
   void initState() {
-    _makeInitialRequest();
+    if (widget.initialRules != null) {
+      plutoRows = _getPlutoRowsFromRules(widget.initialRules!);
+      isLoading = false;
+    } else {
+      _makeInitialRequest();
+    }
+
     plutoColumns.addAll(_getPlutoColumns());
     super.initState();
   }
