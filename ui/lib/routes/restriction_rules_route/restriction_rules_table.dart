@@ -142,10 +142,14 @@ class _RestrictionRulesTableState extends State<RestrictionRulesTable> {
   @override
   Widget build(BuildContext context) {
     if (isError) {
-      return const Text('Error');
+      return const Center(
+        child: Text('Error'),
+      );
     }
     if (isLoading) {
-      return const CircularProgressIndicator();
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
     }
 
     return Container(
