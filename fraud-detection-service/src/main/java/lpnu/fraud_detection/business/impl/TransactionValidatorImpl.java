@@ -17,10 +17,15 @@ public class TransactionValidatorImpl implements TransactionValidator {
     @Override
     public ValidationResult validateTransaction(Transaction transaction) {
         return transactionRuleMatcher.findMatchedTransactionRule(transaction)
-                .map(foundRule -> ValidationResult.newBuilder()
-                        .setStatus(ValidationStatus.BLOCK)
-                        .setRuleName(foundRule)
-                        .build())
+                .map(this::buildBlockedValidationResult) // Extracted the logic for building a blocked validation result into a separate method (buildBlockedValidationResult) to improve readability and used method reference in the map operation to make the code more concise.
                 .orElse(SUCCESS_VALIDATION);
+    }
+
+    //buildBlockedValidationResult method
+    private ValidationResult buildBlockedValidationResult(String foundRule) {
+        return ValidationResult.newBuilder()
+                .setStatus(ValidationStatus.BLOCK)
+                .setRuleName(foundRule)
+                .build();
     }
 }

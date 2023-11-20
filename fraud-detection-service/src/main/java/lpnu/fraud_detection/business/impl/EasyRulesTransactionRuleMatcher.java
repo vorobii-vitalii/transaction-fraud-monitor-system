@@ -15,6 +15,7 @@ import org.jeasy.rules.mvel.MVELRule;
 
 import java.time.Duration;
 import java.util.Optional;
+import lpnu.fraud.detection.system.RestrictionRule;
 
 public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
     private static final String FACTS = "facts";
@@ -32,6 +33,7 @@ public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
             int cacheTTLSeconds
     ) {
         this.transactionContextEvaluator = transactionContextEvaluator;
+        
         rulesCache = Caffeine.newBuilder()
                 .maximumSize(MAXIMUM_SIZE)
                 .expireAfterWrite(Duration.ofSeconds(cacheTTLSeconds))
@@ -39,25 +41,19 @@ public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
                     var rules = new Rules();
                     transactionRulesProvider
                             .getRules()
-                            .forEach(rule -> {
-                                var ruleName = rule.getRuleName();
-                                rules.register(new MVELRule()
-                                        .name(ruleName)
-                                        .description(ruleName)
-                                        .when(rule.getPredicate())
-                                        .then(FACTS + ".put(\"" + RESULT + "\", \"" + ruleName + "\");"));
-                            });
+                            .forEach(rule -> rules.register(buildRule(rule))); // Extract the rule registration logic into a separate method.
                     return rules;
                 });
     }
-
+    
+    private final DefaultRulesEngine rulesEngine = new DefaultRulesEngine(); // nitialize the DefaultRulesEngine outside the findMatchedTransactionRule method to avoid redundant creations.
+    
     @Override
     public Optional<String> findMatchedTransactionRule(Transaction transaction) {
         var context = transactionContextEvaluator.evaluateContext(transaction);
         var facts = new Facts();
         facts.put(CONTEXT, context);
         var rules = rulesCache.get(IGNORED_KEY);
-        var rulesEngine = new DefaultRulesEngine();
         rulesEngine.registerRuleListener(new RuleListener() {
             @Override
             public void beforeExecute(Rule rule, Facts facts) {
@@ -77,4 +73,14 @@ public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
         rulesEngine.fire(rules, facts);
         return Optional.ofNullable(facts.get(RESULT));
     }
+
+    // buildRule method
+    private MVELRule buildRule(RestrictionRule rule) {
+        var ruleName = rule.getRuleName();
+        return new MVELRule()
+                .name(ruleName)
+                .description(ruleName)
+                .when(rule.getPredicate())
+                .then(FACTS + ".put(\"" + RESULT + "\",\"" + ruleName + "\");");
+    } 
 }

@@ -14,10 +14,13 @@ public class CachingTransactionRulesProvider implements TransactionRulesProvider
     private final LoadingCache<Integer, List<RestrictionRule>> cache;
 
     public CachingTransactionRulesProvider(
-            TransactionRulesProvider transactionRulesProvider,
-            int cacheTTLSeconds
-    ) {
-        cache = Caffeine.newBuilder()
+                TransactionRulesProvider transactionRulesProvider, 
+                int cacheTTLSeconds) {
+        cache = createCache(transactionRulesProvider, cacheTTLSeconds);
+    }
+    
+    private LoadingCache<Integer, List<RestrictionRule>> createCache(TransactionRulesProvider transactionRulesProvider, int cacheTTLSeconds) {
+        return Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofSeconds(cacheTTLSeconds))
                 .maximumSize(CACHE_SIZE)
                 .build(ignored -> transactionRulesProvider.getRules());
