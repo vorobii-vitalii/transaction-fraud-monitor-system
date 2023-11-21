@@ -16,9 +16,10 @@ public class CachingTransactionRulesProvider implements TransactionRulesProvider
     public CachingTransactionRulesProvider(
                 TransactionRulesProvider transactionRulesProvider, 
                 int cacheTTLSeconds) {
-        cache = createCache(transactionRulesProvider, cacheTTLSeconds);
+        cache = createCache(transactionRulesProvider, cacheTTLSeconds); // Extracted the cache creation logic into a separate method (createCache) to improve readability and maintainability.
     }
     
+    // extracted createCache method
     private LoadingCache<Integer, List<RestrictionRule>> createCache(TransactionRulesProvider transactionRulesProvider, int cacheTTLSeconds) {
         return Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofSeconds(cacheTTLSeconds))

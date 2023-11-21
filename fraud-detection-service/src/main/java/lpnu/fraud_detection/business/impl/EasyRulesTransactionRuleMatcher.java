@@ -46,14 +46,13 @@ public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
                 });
     }
     
-    private final DefaultRulesEngine rulesEngine = new DefaultRulesEngine(); // nitialize the DefaultRulesEngine outside the findMatchedTransactionRule method to avoid redundant creations.
-    
     @Override
     public Optional<String> findMatchedTransactionRule(Transaction transaction) {
         var context = transactionContextEvaluator.evaluateContext(transaction);
         var facts = new Facts();
         facts.put(CONTEXT, context);
         var rules = rulesCache.get(IGNORED_KEY);
+        var rulesEngine = new DefaultRulesEngine();
         rulesEngine.registerRuleListener(new RuleListener() {
             @Override
             public void beforeExecute(Rule rule, Facts facts) {
