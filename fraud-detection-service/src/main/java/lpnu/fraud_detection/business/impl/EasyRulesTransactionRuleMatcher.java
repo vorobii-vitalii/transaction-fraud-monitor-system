@@ -15,6 +15,7 @@ import org.jeasy.rules.mvel.MVELRule;
 
 import java.time.Duration;
 import java.util.Optional;
+import lpnu.fraud.detection.system.RestrictionRule;
 
 public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
     private static final String FACTS = "facts";
@@ -32,6 +33,7 @@ public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
             int cacheTTLSeconds
     ) {
         this.transactionContextEvaluator = transactionContextEvaluator;
+        
         rulesCache = Caffeine.newBuilder()
                 .maximumSize(MAXIMUM_SIZE)
                 .expireAfterWrite(Duration.ofSeconds(cacheTTLSeconds))
@@ -39,18 +41,11 @@ public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
                     var rules = new Rules();
                     transactionRulesProvider
                             .getRules()
-                            .forEach(rule -> {
-                                var ruleName = rule.getRuleName();
-                                rules.register(new MVELRule()
-                                        .name(ruleName)
-                                        .description(ruleName)
-                                        .when(rule.getPredicate())
-                                        .then(FACTS + ".put(\"" + RESULT + "\", \"" + ruleName + "\");"));
-                            });
+                            .forEach(rule -> rules.register(buildRule(rule))); // Extract the rule registration logic into a separate method.
                     return rules;
                 });
     }
-
+    
     @Override
     public Optional<String> findMatchedTransactionRule(Transaction transaction) {
         var context = transactionContextEvaluator.evaluateContext(transaction);
@@ -77,4 +72,14 @@ public class EasyRulesTransactionRuleMatcher implements TransactionRuleMatcher {
         rulesEngine.fire(rules, facts);
         return Optional.ofNullable(facts.get(RESULT));
     }
+
+    // buildRule method
+    private MVELRule buildRule(RestrictionRule rule) {
+        var ruleName = rule.getRuleName();
+        return new MVELRule()
+                .name(ruleName)
+                .description(ruleName)
+                .when(rule.getPredicate())
+                .then(FACTS + ".put(\"" + RESULT + "\",\"" + ruleName + "\");");
+    } 
 }
